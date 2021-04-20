@@ -128,14 +128,13 @@ def write_data(case_by_id, loc):
                 age = '21-40'
             elif 40 < fetch_data[2] <= 60:
                 age = '41-60'
-            elif 60 < fetch_data[2] <= 80:
-                age = '61-80'
-            elif 80 < fetch_data[2] <= 100:
-                age = '81-100'
-            with open(f"dataset/{loc}/{fetch_data[0]}/{age}/{fetch_data[1]}_{fetch_data[7].rstrip()}.gz",
+            elif 60 < fetch_data[2]:
+                age = '61+'
+            # Bestanden worden geschreven naar folder: dataset/kankersoort/geslacht/leeftijdscategorie/ethniciteit/
+            with open(f"dataset/{loc}/{fetch_data[0]}/{age}/{fetch_data[1]}/{fetch_data[7].rstrip()}.gz",
                       "wb") as output_file:
                 print(
-                    f"Downloading case: dataset/{loc}/{fetch_data[0]}/{age}/{fetch_data[1]}_{fetch_data[7].rstrip()}.gz"
+                    f"Downloading case: dataset/{loc}/{fetch_data[0]}/{age}/{fetch_data[1]}/{fetch_data[7].rstrip()}.gz"
                 )
                 output_file.write(response.content)
                 write_tsv(fetch_data)
@@ -145,7 +144,10 @@ def write_data(case_by_id, loc):
 
 
 def main():
-    locations = ["Thyroid", "Cervix", "Ovary", "Breast", "Testis", "Prostate"]
+    with open("metadata.tsv", "w") as file:
+        file.write("Case_id\tSample_type\tPrimary_site\tGender\tAge\tEthnicity\n")
+        file.close()
+    locations = ["Pancreas", "Cervix", "Ovary", "Prostate", "Testis", "Thyroid"]
     for loc in locations:
         data = get_cases(loc)
         write_data(data, loc)
