@@ -1,6 +1,6 @@
+import zlib
 import requests
 
-temp = []
 type_ages = {"Cervix": [18, 30], "Ovary": [18, 40], "Pancreas": [18, 50], "Prostate": [40, 50], "Testis": [18, 25],
              "Thyroid": [18, 30]
              }
@@ -109,7 +109,8 @@ def get_cases(location):
     except IndexError:
         pass
     print(
-        f"{location} with sample aged {type_ages.get(location)[0]}-{type_ages.get(location)[1]}: \nMale:\t{male}\nFemale:\t{female}\n")
+        f"{location} with sample aged {type_ages.get(location)[0]}-{type_ages.get(location)[1]}:"
+        f"\nMale:\t{male}\nFemale:\t{female}\n")
     return cases
 
 
@@ -118,10 +119,12 @@ def write_tsv(case):
     Deze functie schrijft metadata weg in een TSV format.
     :param case: Sample met metadata
     """
+    gender = case[0][0].upper()
     with open("metadata.tsv", "a") as tsv_file:
         file_case = case[6].strip(".gz")
         age_cat = f"{type_ages.get(case[4])[0]}-{type_ages.get(case[4])[1]}"
-        tsv_file.write(f"{file_case}\t{case[4]}\t{case[0]}\t{case[2]}\t{age_cat}\n")
+        tsv_file.write(f"{file_case}\t{case[4]}\t{gender}\t{case[2]}\t{age_cat}\n")
+        tsv_file.close()
 
 
 def write_data(case_by_id, loc):
@@ -135,15 +138,13 @@ def write_data(case_by_id, loc):
         response = requests.get(data_endpt, headers={"Content-Type": "application/json"})
 
         try:
-            # Bepaal leeftijd, niet mijn finest work of code :')
-            age = 'Not reported'
-            # Bestanden worden geschreven naar folder: dataset/kankersoort/geslacht/leeftijdscategorie/ethniciteit/
-            with open(f"dataset/{loc}/{fetch_data[6].rstrip()}",
-                      "wb") as output_file:
+            filename = fetch_data[6].strip(".gz")
+            with open(f"dataset/{loc}/{filename}", 'wb') as output_file:
                 print(
-                    f"Downloading case: dataset/{loc}/{fetch_data[6].rstrip()}"
+                    f"Downloading case: dataset/{loc}/{filename}"
                 )
-                output_file.write(response.content)
+                # Write decompressed gzips into htseq.count files.
+                output_file.write(zlib.decompress(response.content, 16 + zlib.MAX_WBITS))
                 write_tsv(fetch_data)
         except Exception as e:
             print(e)
