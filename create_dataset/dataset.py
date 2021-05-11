@@ -1,6 +1,9 @@
 import requests
 
 temp = []
+type_ages = {"Cervix": [18, 30], "Ovary": [18, 40], "Pancreas": [18, 50], "Prostate": [40, 50], "Testis": [18, 25],
+             "Thyroid": [18, 30]
+             }
 
 
 def get_cases(location):
@@ -85,6 +88,8 @@ def get_cases(location):
     response = requests.post(files_endpt, headers={"Content-Type": "application/json"}, json=params)
     cases = []
     data = response.content.decode()
+    male = 0
+    female = 0
     try:
         for case in data.split("\n"):
             split_data = case.split("\t")
@@ -92,11 +97,19 @@ def get_cases(location):
                 try:
                     split_data[2] = round(int(split_data[2]) / 365, 1)
                     split_data[1] = split_data[1].replace(' ', '_')
-                    cases.append(split_data)
+                    if type_ages.get(location)[0] < int(split_data[2]) <= type_ages.get(location)[1] and split_data[1] \
+                            == 'white':
+                        cases.append(split_data)
+                        if split_data[0] == 'male':
+                            male += 1
+                        else:
+                            female += 1
                 except ValueError:
                     pass
     except IndexError:
         pass
+    print(
+        f"{location} with sample aged {type_ages.get(location)[0]}-{type_ages.get(location)[1]}: \nMale:\t{male}\nFemale:\t{female}\n")
     return cases
 
 
@@ -106,7 +119,9 @@ def write_tsv(case):
     :param case: Sample met metadata
     """
     with open("metadata.tsv", "a") as tsv_file:
-        tsv_file.write(f"{case[7].rstrip()}\t{case[5]}\t{case[4]}\t{case[0]}\t{case[1]}\t{case[2]}\n")
+        file_case = case[6].strip(".gz")
+        age_cat = f"{type_ages.get(case[4])[0]}-{type_ages.get(case[4])[1]}"
+        tsv_file.write(f"{file_case}\t{case[4]}\t{case[0]}\t{case[2]}\t{age_cat}\n")
 
 
 def write_data(case_by_id, loc):
@@ -122,33 +137,24 @@ def write_data(case_by_id, loc):
         try:
             # Bepaal leeftijd, niet mijn finest work of code :')
             age = 'Not reported'
-            if 0 <= fetch_data[2] <= 20:
-                age = '0-20'
-            elif 20 < fetch_data[2] <= 40:
-                age = '21-40'
-            elif 40 < fetch_data[2] <= 60:
-                age = '41-60'
-            elif 60 < fetch_data[2]:
-                age = '61+'
             # Bestanden worden geschreven naar folder: dataset/kankersoort/geslacht/leeftijdscategorie/ethniciteit/
-            with open(f"dataset/{loc}/{fetch_data[0]}/{age}/{fetch_data[1]}/{fetch_data[7].rstrip()}.gz",
+            with open(f"dataset/{loc}/{fetch_data[6].rstrip()}",
                       "wb") as output_file:
                 print(
-                    f"Downloading case: dataset/{loc}/{fetch_data[0]}/{age}/{fetch_data[1]}/{fetch_data[7].rstrip()}.gz"
+                    f"Downloading case: dataset/{loc}/{fetch_data[6].rstrip()}"
                 )
                 output_file.write(response.content)
                 write_tsv(fetch_data)
         except Exception as e:
             print(e)
-            print(f"{fetch_data[7]} could not be downloaded, skipping...")
+            print(f"{fetch_data[6]} could not be downloaded, skipping...")
 
 
 def main():
     with open("metadata.tsv", "w") as file:
-        file.write("Case_id\tSample_type\tPrimary_site\tGender\tAge\tEthnicity\n")
+        file.write("Case_id\tPrimary_site\tGender\tAge\tAge category\n")
         file.close()
-    locations = ["Pancreas", "Cervix", "Ovary", "Prostate", "Testis", "Thyroid"]
-    for loc in locations:
+    for loc in type_ages.keys():
         data = get_cases(loc)
         write_data(data, loc)
 
