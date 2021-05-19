@@ -17,14 +17,19 @@ read_counts_for_dir <- function(directory) {
   
   return(counts_table)
 }
+# args[1] is the path to the input.tsv and args[2] is the path to the map with the hseqcounts which you want to use as input
 args <- commandArgs(trailingOnly = TRUE)
 
-input_tsv <- read.table(file = args[1], sep = '\t', header = TRUE)
+# Making the design on the basis of the input.tsv
+design <- read.table(file = args[1], sep = '\t', header = TRUE)
 
-input_tsv[,1]
-sort(row.names(input_tsv[,1]))
-rownames(input_tsv) <-paste(args[2], input_tsv[,1], sep="")  
-input_tsv[,1] <- NULL
+design[,1]
+sort(row.names(design[,1]))
+rownames(design) <-paste(args[2], design[,1], sep="")  
+design[,1] <- NULL
 
+# all files merged
 merged_files <- read_counts_for_dir(args[2])
 
+# example terminal command 
+# Rscript ./input_to_table.R '/home/gebruiker/input.tsv' '/home/gebruiker/dataset/Cervix/'
