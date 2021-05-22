@@ -1,8 +1,8 @@
 #!/usr/bin/env nextflow
 
 // Script parameters
-params.db        = "$baseDir/dataset/Cervix/"
-params.input     = "$baseDir/input.tsv"
+db        = "$baseDir/dataset/Cervix/"
+input     = "$baseDir/input.tsv"
 
 // Tool paths
 input_to_table   = "$baseDir/input_to_table.R"
@@ -13,7 +13,8 @@ design_ch        = channel.create()
 count_ch         = channel.create()
 
 process input_to_table {
-	conda 'r.utils'
+	//conda 'bioconda::r-r.utils=1.1.2'
+	conda 'r-r.utils'
 	
 	input:
 	//input.tsv
@@ -30,7 +31,7 @@ process input_to_table {
 	script:
 	//Rscript ./input_to_table.R '/home/gebruiker/input.tsv' '/home/gebruiker/dataset/Cervix/'
 	"""
-	Rscript $input_to_table $input $db
+	Rscript $input_to_table $baseDir/input.tsv $db
 	"""
 }
 
