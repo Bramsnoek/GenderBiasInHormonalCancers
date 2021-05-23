@@ -23,35 +23,41 @@ process input_to_table {
 	
 	output:
 	//design (geen file?)
-	file design into design_ch
+	file "design.txt" into design_ch
 
 	//htseq count table
-	file counts_table into count_ch
+	//file counts_table into count_ch
 
 	script:
 	//Rscript ./input_to_table.R '/home/gebruiker/input.tsv' '/home/gebruiker/dataset/Cervix/'
+	//publishDir outDir = "/results/design", mode:'copy', pattern: "*.tsv" 
 	"""
 	Rscript $input_to_table $baseDir/input.tsv $db
 	"""
 }
 
-process normalisation_DE {
+//process normalisation_DE {
+	//conda 'r-utils'
+	//conda 'bioconductor-limma'
+	//conda 'r-ggplot2'
+	//conda 'bioconductor-edger'
+	
 	//conda 'r.utils' 'edger' 'ggplot2'
 	
-	input:
+	//input:
 	//design 
-	file design from design_ch
+	//file "design.txt" from design_ch
 	
 	//counts_table
-	file counts_table from count_ch
+	//file counts_table from count_ch
 	
 	//output:
 	//results
 	//rdata als normalisatie apart
 
-	script:
+	//script:
 	//Rscript ./normalization.R '/home/gebruiker/design.csv' '/home/gebruiker/dataset/Cervix/'
-	"""
-	Rscript $norm_DE $input $db
-	"""
-}
+	//"""
+	//Rscript $norm_DE '/home/ilse/design.csv' $db
+	//"""
+//}
