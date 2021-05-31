@@ -22,10 +22,10 @@ read_counts_for_dir <- function(directory) {
 args <- commandArgs(trailingOnly = TRUE)
 
 # all files merged
-merged_files <- read_counts_for_dir('/home/gebruiker/dataset/Pancreas/')
+merged_files <- read_counts_for_dir(args[1])
 print(design)
 
-m <- paste(args[3], 'merged_files3.csv', sep = "")
+m <- paste(args[2], 'merged_files3.csv', sep = "")
 
 write.csv(merged_files, m)
 
