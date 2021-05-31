@@ -58,4 +58,4 @@ voomDGE <- normalization(merged_files, design)
 save(voomDGE, file = "voomDGE.RData")
 
 # example terminal command 
-# Rscript ./normalization.R '/home/gebruiker/design.csv' '/home/gebruiker/dataset/Cervix/'
+# Rscript ./normalization.R 'design.csv' 'mergedfiles.csv'
