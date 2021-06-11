@@ -10,25 +10,18 @@ input_to_table	= "$baseDir/scripts/merge_files.R"
 norm_de	= "$baseDir/scripts/DE.R"
 
 // Format params
-
 site		= "$params.site"
 
-
-
-
-
-
+// Initiate channel
 dataset_design = Channel.fromPath( 'input.tsv' )
 
 // Pre-proccessing the Htseq counts
 process merged_files {
 	conda 'conda-forge::r-r.utils=2.7.0'
 	
-
 	output:
 	file "merged.csv" into csv_channel
 	
-
 	script:
 	println("Running pipeline for:\t${site}")
 	"""
