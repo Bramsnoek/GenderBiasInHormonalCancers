@@ -20,7 +20,7 @@ site		= "$params.site"
 
 dataset_design = Channel.fromPath( 'input.tsv' )
 
-
+// Pre-proccessing the Htseq counts
 process merged_files {
 	conda 'conda-forge::r-r.utils=2.7.0'
 	
@@ -36,7 +36,7 @@ process merged_files {
 	"""
 }
 
-
+// Normalisation and Analysis of the Htseq counts 
 process normalization {
 	conda 'conda-forge::r-r.utils bioconda::bioconductor-edger r::r-ggplot2 r::r r::r-dplyr conda-forge::r-readr conda-forge::r-cli'
 	publishDir "${baseDir}/output/", mode: 'copy'
